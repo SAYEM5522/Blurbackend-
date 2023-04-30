@@ -92,6 +92,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), async(request, res
   // Return a 200 response to acknowledge receipt of the event
   response.sendStatus(200)
 });
+
 app.get("/allCode",async(req,res)=>{
    try {
     const item=await User.find({})
@@ -100,5 +101,6 @@ app.get("/allCode",async(req,res)=>{
     console.log(error)
    }
 })
+app.use(express.json())
 
 app.listen(4242, () => console.log('Running on port 4242'));
