@@ -28,12 +28,18 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-
+app.use((req, res, next) => {
+  if (req.originalUrl === '/webhook') {
+    next(); // Do nothing with the body because I need it in a raw state.
+  } else {
+    express.json()(req, res, next);  // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
+  }
+});
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = "whsec_6c778aa2ecddc40aac004d6c9bda3e93f68ecdf679fd2ebd2bb960c62ae58d20";
-
-app.post('/webhook', express.raw({type: 'application/json'}), async(request, response) => {
+// express.raw({type: 'application/json'}),
+app.post('/webhook',  async(request, response) => {
   const sig = request.headers['stripe-signature'];
   let event;
   
