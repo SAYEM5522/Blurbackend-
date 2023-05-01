@@ -4,7 +4,7 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 const cors=require("cors")
-const bodyParser=require("body-parser")
+// const bodyParser=require("body-parser")
 const c_u="mongodb+srv://blur:geAUpi2sSPs0Civh@cluster0.c7pvsmn.mongodb.net/?retryWrites=true&w=majority"
 const app = express();
 const uuid4=require("uuid4");
@@ -107,6 +107,6 @@ app.get("/allCode",async(req,res)=>{
     console.log(error)
    }
 })
-app.use(express.json())
+// app.use(express.json())
 
 app.listen(4242, () => console.log('Running on port 4242'));
