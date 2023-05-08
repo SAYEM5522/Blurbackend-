@@ -44,7 +44,7 @@ app.post('/webhook',  async(request, response) => {
   let event;
   
   
-  if(endpointSecret){
+  // if(endpointSecret){
     try {
       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
       
@@ -52,7 +52,7 @@ app.post('/webhook',  async(request, response) => {
       response.status(400).send(`Webhook Error: ${err.message}`);
       return;
     }
-  }
+  // }
   
   // Handle the event
   switch (event.type) {
