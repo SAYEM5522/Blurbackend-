@@ -28,76 +28,119 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-app.use((req, res, next) => {
-  if (req.originalUrl === '/webhook') {
-    next(); // Do nothing with the body because I need it in a raw state.
-  } else {
-    express.json()(req, res, next);  // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
-  }
-});
+// app.use(express.json()); // Parse request body as JSON for all requests
+
+// app.use((req, res, next) => {
+//   if (req.originalUrl === '/webhook') {
+//     next();
+//   } else {
+//     next();
+//   }
+// });
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = "whsec_6c778aa2ecddc40aac004d6c9bda3e93f68ecdf679fd2ebd2bb960c62ae58d20";
 // express.raw({type: 'application/json'}),
-app.post('/webhook',  async(request, response) => {
-  const sig = request.headers['stripe-signature'];
-  let event;
+// app.post('/webhook',express.raw({type: 'application/json'}),  async(request, response) => {
+//   const sig = request.headers['stripe-signature'];
+//   let event;
   
   
-  // if(endpointSecret){
-    try {
-      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+//   // if(endpointSecret){
+//     try {
+//       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
       
-    } catch (err) {
-      response.status(400).send(`Webhook Error: ${err.message}`);
-      return;
-    }
-  // }
+//     } catch (err) {
+//       response.status(400).send(`Webhook Error: ${err.message}`);
+//       return;
+//     }
+//   // }
   
-  // Handle the event
-  switch (event.type) {
-    case 'checkout.session.completed':
-      const invoiceUpcoming = event.data.object;
-      console.log(invoiceUpcoming.customer_details.email)
-      const itemCode=uuid4()
-      try {
-        // const item={
-        //   email:invoiceUpcoming.customer_details.email,
-        //   code:itemCode
-        // }
-        await new User({
-           email:invoiceUpcoming.customer_details.email,
-          code:itemCode
-        }).save()
+//   // Handle the event
+//   switch (event.type) {
+//     case 'checkout.session.completed':
+//       const invoiceUpcoming = event.data.object;
+//       console.log(invoiceUpcoming.customer_details.email)
+//       const itemCode=uuid4()
+//       try {
+//         // const item={
+//         //   email:invoiceUpcoming.customer_details.email,
+//         //   code:itemCode
+//         // }
+//         await new User({
+//            email:invoiceUpcoming.customer_details.email,
+//           code:itemCode
+//         }).save()
         
-      } catch (error) {
-        console.log(error)
+//       } catch (error) {
+//         console.log(error)
         
-      }
+//       }
 
-      const mailOptions = {
-        from: 'sayem.mia@northsouth.edu',
-        to: 'md1040582@gmail.com',
-        subject: 'Blur Fucas Access Code.',
-        text: `Your Access Code For Blur Focus is "${itemCode}"`
-      };
+//       const mailOptions = {
+//         from: 'sayem.mia@northsouth.edu',
+//         to: 'md1040582@gmail.com',
+//         subject: 'Blur Fucas Access Code.',
+//         text: `Your Access Code For Blur Focus is "${itemCode}"`
+//       };
 
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
-      break;
+//       transporter.sendMail(mailOptions, function(error, info){
+//         if (error) {
+//           console.log(error);
+//         } else {
+//           console.log('Email sent: ' + info.response);
+//         }
+//       });
+//       break;
 
-  }
+//   }
  
   
 
-  // Return a 200 response to acknowledge receipt of the event
-  response.sendStatus(200)
+//   // Return a 200 response to acknowledge receipt of the event
+//   response.sendStatus(200)
+// });
+
+
+const bodyParser = require('body-parser');
+
+const fulfillOrder = (lineItems) => {
+  // TODO: fill me in
+  console.log("Fulfilling order", lineItems);
+}
+
+app.post('/webhook', bodyParser.raw({type: 'application/json'}), async (request, response) => {
+  const payload = request.body;
+  const sig = request.headers['stripe-signature'];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+  } catch (err) {
+    return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the checkout.session.completed event
+  if (event.type === 'checkout.session.completed') {
+    // Retrieve the session. If you require line items in the response, you may include them by expanding line_items.
+    // const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
+    //   event.data.object.id,
+    //   {
+    //     expand: ['line_items'],
+    //   }
+    // );
+    const lineItems = "jk";
+
+    // Fulfill the purchase...
+    fulfillOrder(lineItems);
+  }
+
+  response.status(200).end();
 });
+
+
+
 
 app.get("/allCode",async(req,res)=>{
    try {
