@@ -3,21 +3,20 @@ const stripe = require('stripe')('sk_test_51MxW3lBQWfASZckPHWvuHCrvuvLeNLEA07qXB
 const express = require('express');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
-const cors=require("cors")
+const cors = require("cors")
 // const bodyParser=require("body-parser")
-const c_u="mongodb+srv://blur:geAUpi2sSPs0Civh@cluster0.c7pvsmn.mongodb.net/?retryWrites=true&w=majority"
+const c_u = "mongodb+srv://blur:geAUpi2sSPs0Civh@cluster0.c7pvsmn.mongodb.net/?retryWrites=true&w=majority"
 const app = express();
-const uuid4=require("uuid4");
+const uuid4 = require("uuid4");
 const User = require('./data.js');
 app.use(cors())
-// app.use(bodyParser.json())
 const bodyParser = require('body-parser');
 
-mongoose.connect(c_u,{
+mongoose.connect(c_u, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-mongoose.connection.once('open',()=>{
+mongoose.connection.once('open', () => {
   console.log("Connected Successfully")
 
 })
@@ -29,7 +28,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// app.use(express.json()); // Parse request body as JSON for all requests
 
 app.use((req, res, next) => {
   if (req.originalUrl === '/webhook') {
@@ -40,42 +38,40 @@ app.use((req, res, next) => {
 });
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret = "whsec_6c778aa2ecddc40aac004d6c9bda3e93f68ecdf679fd2ebd2bb960c62ae58d20";
+const endpointSecret = "whsec_ngAs2FmrfLVCeiS92veLqsX54J0QC1oD";
 // express.raw({type: 'application/json'}),
-app.post('/webhook', express.raw({type: 'application/json'}),  async(request, response) => {
+app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
   const sig = request.headers['stripe-signature'];
   let event;
-  
+
   const stripePayload = request.body;
-  // if(endpointSecret){
-    try {
-      event = stripe.webhooks.constructEvent(stripePayload, sig, endpointSecret);
-      
-    } catch (err) {
-      response.status(400).send(`Webhook Error: ${err.message}`);
-      return;
-    }
-  // }
-  
+  try {
+    event = stripe.webhooks.constructEvent(stripePayload, sig, endpointSecret);
+
+  } catch (err) {
+    response.status(400).send(`Webhook Error: ${err.message}`);
+    return;
+  }
+
   // Handle the event
   switch (event.type) {
     case 'checkout.session.completed':
       const invoiceUpcoming = event.data.object;
       console.log(invoiceUpcoming.customer_details.email)
-      const itemCode=uuid4()
+      const itemCode = uuid4()
       try {
         // const item={
         //   email:invoiceUpcoming.customer_details.email,
         //   code:itemCode
         // }
         await new User({
-           email:invoiceUpcoming.customer_details.email,
-          code:itemCode
+          email: invoiceUpcoming.customer_details.email,
+          code: itemCode
         }).save()
-        
+
       } catch (error) {
         console.log(error)
-        
+
       }
 
       const mailOptions = {
@@ -85,7 +81,7 @@ app.post('/webhook', express.raw({type: 'application/json'}),  async(request, re
         text: `Your Access Code For Blur Focus is "${itemCode}"`
       };
 
-      transporter.sendMail(mailOptions, function(error, info){
+      transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           console.log(error);
         } else {
@@ -95,10 +91,6 @@ app.post('/webhook', express.raw({type: 'application/json'}),  async(request, re
       break;
 
   }
- 
-  
-
-  // Return a 200 response to acknowledge receipt of the event
   response.status(200).end()
 });
 
@@ -109,13 +101,13 @@ app.post('/webhook', express.raw({type: 'application/json'}),  async(request, re
 
 
 
-app.get("/allCode",async(req,res)=>{
-   try {
-    const item=await User.find({})
+app.get("/allCode", async (req, res) => {
+  try {
+    const item = await User.find({})
     res.status(201).send(item)
-   } catch (error) {
+  } catch (error) {
     console.log(error)
-   }
+  }
 })
 // app.use(express.json())
 
