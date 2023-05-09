@@ -42,14 +42,14 @@ const transporter = nodemailer.createTransport({
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = "whsec_6c778aa2ecddc40aac004d6c9bda3e93f68ecdf679fd2ebd2bb960c62ae58d20";
 // express.raw({type: 'application/json'}),
-app.post('/webhook',bodyParser.raw({type: 'application/json'}),  async(request, response) => {
+app.post('/webhook', express.raw({type: 'application/json'}),  async(request, response) => {
   const sig = request.headers['stripe-signature'];
   let event;
   
-  
+  const stripePayload = (request).rawBody || request.body;
   // if(endpointSecret){
     try {
-      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+      event = stripe.webhooks.constructEvent(stripePayload, sig, endpointSecret);
       
     } catch (err) {
       response.status(400).send(`Webhook Error: ${err.message}`);
