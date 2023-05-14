@@ -1,5 +1,5 @@
 
-const stripe = require('stripe')('sk_test_51MxW3lBQWfASZckPHWvuHCrvuvLeNLEA07qXB03rO7LYVSoHjUxYeqa4WyuNN7mLKI8H6Ld4sEHMHWMIfvDZaLdW00KiXscUJC');
+const stripe = require('stripe')('sk_test_51N5ooYBEOxUQKVOWUfcRHqTv3YiaWwrBnJ4gIUZ0RN438y1Z4D5OysnT1hE0JYdFoa3qNBlFJaw9NwrTYCZ0Ob970041MVGKKt');
 const express = require('express');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
