@@ -1,5 +1,5 @@
 
-const stripe = require('stripe')('sk_test_51N5ooYBEOxUQKVOWUfcRHqTv3YiaWwrBnJ4gIUZ0RN438y1Z4D5OysnT1hE0JYdFoa3qNBlFJaw9NwrTYCZ0Ob970041MVGKKt');
+const stripe = require('stripe')('sk_test_51M0QGtCx996FZZgar0EDav42cUAomy2QXE4UIeae8WglFKFD7VtyfUx2Jkgkaw9hEMyJ9pPLZ2eqJbngBHZdkozK00YBZqs9VM');
 const express = require('express');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 });
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret = "whsec_1TkesFSdZhyfCZnQQPecvY2BFwF49nJ3";
+const endpointSecret = "whsec_wn2WR2l97cr45HXJgxS7v3HYqAe3TKll";
 // express.raw({type: 'application/json'}),
 app.post('/webhook', async (request, response) => {
 
