@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 });
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret = "whsec_wn2WR2l97cr45HXJgxS7v3HYqAe3TKll";
+const endpointSecret = "whsec_NrHgb6PkXxZahXC5293FLnfnjhr37lNL";
 // express.raw({type: 'application/json'}),
 app.post('/webhook', async (request, response) => {
 
@@ -47,10 +47,12 @@ app.post('/webhook', async (request, response) => {
   let event;
 
   const stripePayload = request.body;
+  console.log({stripePayload});
   try {
     event = stripe.webhooks.constructEvent(stripePayload, sig, endpointSecret);
-
+    console.log(("Tye block executeate successfully!"))
   } catch (err) {
+    console.log("catch block executed")
     response.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
@@ -96,7 +98,12 @@ app.post('/webhook', async (request, response) => {
   response.status(200).end()
 });
 
-
+app.get('/webhook',(req,res)=>{
+   res.send("hello worldd")
+})
+app.get('/',(req,res)=>{
+   res.send("hello worldd")
+})
 
 
 
