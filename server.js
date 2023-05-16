@@ -52,7 +52,27 @@ app.post('/appsumo', (req, res) => {
       res.status(500).json({ error: 'Failed to insert items' });
     });
 });
+app.get("/appsumo",async(req,res)=>{
 
+  try {
+   const data=await Appsumo.find({})
+   if(data){
+    return res.status(200).send(data)
+   }
+  } catch (error) {
+    console.log(error)
+  }
+
+})
+
+app.get("/allCode", async (req, res) => {
+  try {
+    const item = await User.find({})
+    res.status(201).send(item)
+  } catch (error) {
+    console.log(error)
+  }
+})
 app.put('/appsumo/:code', (req, res) => {
   const code = req.params.code; // Get the code from the route parameters
 
