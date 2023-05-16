@@ -79,7 +79,7 @@ app.put('/appsumo/:code', (req, res) => {
 
       if (appsumo.turn === 0) {
         // Turn number is already 0
-        return res.status(200).json({ message: 'Trial number has finished' });
+        return res.status(400).json({ message: 'Trial number has finished' });
       }
       appsumo.turn -= 1;
       return appsumo.save();
