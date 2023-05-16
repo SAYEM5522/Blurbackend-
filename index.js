@@ -32,18 +32,21 @@ app.use((req, res, next) => {
   }
 });
 
-app.post('/appsumo', (req, res) => {
+app.post('/appsumo', async(req, res) => {
   const items = req.body;
-  console.log(items) // Assuming the array of items is provided in the request body
-
-  // Insert the array of items into the database
-  Appsumo.insertMany(items)
+   try {
+   await Appsumo.insertMany(items)
     .then(() => {
       res.status(200).json({ message: 'Items inserted successfully' });
     })
     .catch((error) => {
       res.status(500).json({ error: 'Failed to insert items' });
     });
+   } catch (error) {
+    console.log(error)
+   }
+  // Insert the array of items into the database
+  
 });
 app.get("/appsumo",async(req,res)=>{
 
@@ -66,11 +69,10 @@ app.get("/allCode", async (req, res) => {
     console.log(error)
   }
 })
-app.put('/appsumo/:code', (req, res) => {
+app.put('/appsumo/:code', async(req, res) => {
   const code = req.params.code; // Get the code from the route parameters
-
-  // Find the Appsumo document with the matching code
-  Appsumo.findOne({ code })
+  try {
+   await Appsumo.findOne({ code })
     .then((appsumo) => {
       if (!appsumo) {
         // Code not found in the database
@@ -90,6 +92,12 @@ app.put('/appsumo/:code', (req, res) => {
     .catch((error) => {
       res.status(500).json({ error: 'Failed to update turn number' });
     });
+  } catch (error) {
+    console.log(error)
+    
+  }
+  // Find the Appsumo document with the matching code
+ 
 });
 
 
