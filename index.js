@@ -5,7 +5,8 @@ const cors = require('cors');
 require('dotenv').config();
 const stripeRoute = require('./routes/stripeRoute');
 const c_u = "mongodb+srv://blur:geAUpi2sSPs0Civh@cluster0.c7pvsmn.mongodb.net/?retryWrites=true&w=majority"
-const Appsumo=require("./Appsumocode")
+const Appsumo=require("./Appsumocode");
+const User = require('./data');
 // CREATING APP
 const app = express();
 app.use(
