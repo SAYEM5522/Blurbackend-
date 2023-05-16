@@ -16,5 +16,3 @@ const AppsumoCode = new Schema({
 const Appsumo = mongoose.model('AppsumoCode', AppsumoCode);
 
 module.exports = Appsumo;
-
-// geAUpi2sSPs0Civh

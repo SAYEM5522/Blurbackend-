@@ -66,13 +66,13 @@ app.put('/appsumo/:code', (req, res) => {
 
       if (appsumo.turn === 0) {
         // Turn number is already 0
-        return res.status(200).json({ message: 'Turn number has finished' });
+        return res.status(200).json({ message: 'Trial number has finished' });
       }
       appsumo.turn -= 1;
       return appsumo.save();
     })
     .then(() => {
-      res.status(200).json({ message: 'Turn number updated successfully' });
+      res.status(200).json({ message: 'Trial number updated successfully' });
     })
     .catch((error) => {
       res.status(500).json({ error: 'Failed to update turn number' });
