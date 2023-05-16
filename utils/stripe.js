@@ -1,4 +1,4 @@
-const stripe = require('stripe')("sk_test_51M0QGtCx996FZZgar0EDav42cUAomy2QXE4UIeae8WglFKFD7VtyfUx2Jkgkaw9hEMyJ9pPLZ2eqJbngBHZdkozK00YBZqs9VM", {
+const stripe = require('stripe')("sk_test_51N5ooYBEOxUQKVOWUfcRHqTv3YiaWwrBnJ4gIUZ0RN438y1Z4D5OysnT1hE0JYdFoa3qNBlFJaw9NwrTYCZ0Ob970041MVGKKt", {
   apiVersion: '2020-08-27',
 });
 

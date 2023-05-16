@@ -4,7 +4,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 const stripeRoute = require('./routes/stripeRoute');
-
+const uuid4 = require("uuid4");
+const nodemailer = require('nodemailer');
+const c_u = "mongodb+srv://blur:geAUpi2sSPs0Civh@cluster0.c7pvsmn.mongodb.net/?retryWrites=true&w=majority"
+const Appsumo=require("./Appsumocode")
 // CREATING APP
 const app = express();
 app.use(
@@ -12,51 +15,75 @@ app.use(
     origin: '*',
   })
 );
+mongoose.connect(c_u, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+mongoose.connection.once('open', () => {
+  console.log("Connected Successfully")
 
+})
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'sayem.mia@northsouth.edu',
+    pass: 'sayambd5522'
+  }
+});
 app.use((req, res, next) => {
   if (req.originalUrl === '/api/v1/stripe/webHook') {
+    console.log(req.originalUrl)
     next();
   } else {
     express.json({ limit: '10mb' })(req, res, next);
   }
 });
-// app.use('/api/v1/stripe/webHook', bodyParser.raw({ type: '*/*' }));
-// app.use(bodyParser.json());
 
-// app.use(
-//   '/api/v1/stripe/webHook',
-//   bodyParser.json({
-//     verify: function (req, res, buf) {
-//       var url = req.originalUrl;
-//       if (url.startsWith('/stripe')) {
-//         req.rawBody = buf.toString();
-//       }
-//     },
-//   })
-// );
+app.post('/appsumo', (req, res) => {
+  const items = req.body;
+  console.log(items) // Assuming the array of items is provided in the request body
 
-// DECLARING PORT
+  // Insert the array of items into the database
+  Appsumo.insertMany(items)
+    .then(() => {
+      res.status(200).json({ message: 'Items inserted successfully' });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: 'Failed to insert items' });
+    });
+});
+
+app.put('/appsumo/:code', (req, res) => {
+  const code = req.params.code; // Get the code from the route parameters
+
+  // Find the Appsumo document with the matching code
+  Appsumo.findOne({ code })
+    .then((appsumo) => {
+      if (!appsumo) {
+        // Code not found in the database
+        return res.status(404).json({ error: 'Code not found' });
+      }
+
+      if (appsumo.turn === 0) {
+        // Turn number is already 0
+        return res.status(200).json({ message: 'Turn number has finished' });
+      }
+      appsumo.turn -= 1;
+      return appsumo.save();
+    })
+    .then(() => {
+      res.status(200).json({ message: 'Turn number updated successfully' });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: 'Failed to update turn number' });
+    });
+});
+
+
+
 const PORT = process.env.PORT || 4242;
 
-// MONGODB URI
-// const mongoDbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ndb6b.mongodb.net/email_assistant`;
-let mongoDbURI;
-if (process.env.NODE_ENV === 'development') {
-  // mongoDbURI = `mongodb+srv://admin:${process.env.DB_PASS}@cluster0.7nromku.mongodb.net/replie_test_db`;
-  mongoDbURI = `mongodb+srv://admin:${process.env.DB_PASS}@cluster0.7nromku.mongodb.net/replie_live_db`;
-} else {
-  mongoDbURI = `mongodb+srv://admin:${process.env.DB_PASS}@cluster0.7nromku.mongodb.net/replie_live_db`;
-}
 
-// MIDDLEWARES
-const middlewares = [express.urlencoded({ extended: true })];
-
-if (process.env.NODE_ENV === 'development') {
-  app.use(require('morgan')('dev'));
-}
-app.use(middlewares);
-
-// ROUTE DECLARATION
 app.use('/api/v1/stripe', stripeRoute);
 
 // ROOT API
@@ -71,22 +98,6 @@ app.get('/', async (req, res) => {
     res.send({ e: e });
   }
 });
-
-// CONNECT DB WITH MONGOOSE
-mongoose
-  .connect(mongoDbURI, { useNewUrlParser: true })
-  .then(() => {
-    if (process.env.NODE_ENV === 'development') {
-      app.listen(PORT, () => {
-        console.log(`SERVER IS RUNNING ON PORT: ${PORT} ❤️`);
-        console.log('DB CONNECTED');
-      });
-    } else {
-      app.listen(process.env.PORT || 4242, () => {
-        console.log('server started');
-      });
-    }
-  })
-  .catch((err) => {
-    console.log(`SERVER ERROR: ${err}`);
+  app.listen(process.env.PORT || 4242, () => {
+    console.log('server started');
   });

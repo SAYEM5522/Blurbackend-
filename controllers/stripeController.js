@@ -1,101 +1,85 @@
+const User = require('../data');
 const { stripe } = require('../utils/stripe');
+const nodemailer = require('nodemailer');
+const uuid4 = require("uuid4");
 
 const stripeController = {};
+const blurrifycode = (
+  CODE
+) => `<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+<div style="margin:50px auto;width:70%;padding:20px 0">
+  <div style="border-bottom:1px solid #eee">
+    <a href="https://blurrify.co/" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Blurrify.co</a>
+  </div>
+  <p style="font-size:1.1em">Hello,</p>
+  <p>Thank you for choosing Blurrify.co . Use the following code to access our app. </p>
+  <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${CODE}</h2>
+  <p style="font-size:0.9em;">Regards,<br />Team Blurrify</p>
+  <hr style="border:none;border-top:1px solid #eee" />
+  <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+    <p>Blurrify.co</p>
+    <p>1600 Amphitheatre Parkway</p>
+    <p>California</p>
+  </div>
+</div>
+</div>`;
 
-
-
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'sayem.mia@northsouth.edu',
+    pass: 'sayambd5522'
+  }
+});
 stripeController.webHook = async (request, response, next) => {
   try {
     const sig = request.headers['stripe-signature'];
-    const endpointSecret = 'whsec_y7Pbv7FcjPL3V1gLhixTSyk3oNFGYyYH';//for render server
+    const endpointSecret = 'whsec_Tpf2swOMkqvBfnEf22oTC0Ss66xFBDKx';//for render server
 
     let event;
 
     try {
-      console.log({
-        stripeWebhooksConstructEvent: stripe.webhooks.constructEvent,
-      });
+      
       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
     } catch (err) {
       response.status(400).send(`Webhook Error: ${err.message}`);
       return;
     }
 
-    // switch (event.type) {
-    //   case 'charge.succeeded':
-    //     const chargeSucceeded = event.data.object;
-    //     const status = chargeSucceeded?.status;
-    //     const paid = chargeSucceeded?.paid;
-    //     const amount_captured = chargeSucceeded?.amount_captured;
-    //     const email = chargeSucceeded?.billing_details?.email;
-    //     console.log({
-    //       email,
-    //       status,
-    //       paid,
-    //       amount_captured,
-    //     });
-    //     if (email && paid && amount_captured && status === 'succeeded') {
-    //       //update your database
-    //       if (amount_captured === 997) {
-    //         //add basic subscription
-    //         try {
-    //           const query = { email: email };
-    //           const options = { upsert: true };
-    //           const endDate = new Date();
-    //           endDate.setMonth(endDate.getMonth() + 1);
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const invoiceUpcoming = event.data.object;
+        console.log(invoiceUpcoming.customer_details.email)
+        const itemCode = uuid4()
+        try {
 
-    //           const updateDoc = {
-    //             $set: {
-    //               selectedPackage: 'pro',
-    //               endDate: endDate,
-    //             },
-    //           };
-    //           const userUpdate = await User.updateOne(
-    //             query,
-    //             updateDoc,
-    //             options
-    //           );
-    //           console.log({ userUpdate });
-    //         } catch (e) {
-    //           console.log(e);
-    //         }
-    //         // const end_date = new Date(trial).toISOString().split('T')[0];
-    //       } else if (amount_captured === 9700) {
-    //         //add pro subscription
-    //         try {
-    //           const query = { email: email };
-    //           const options = { upsert: true };
-    //           const endDate = new Date();
-    //           endDate.setFullYear(endDate.getFullYear() + 1);
-    //           const updateDoc = {
-    //             $set: {
-    //               selectedPackage: 'pro',
-    //               endDate: endDate,
-    //             },
-    //           };
-    //           const userUpdate = await User.updateOne(
-    //             query,
-    //             updateDoc,
-    //             options
-    //           );
-    //           console.log({ userUpdate });
-    //         } catch (e) {
-    //           console.log(e);
-    //         }
-    //       } else {
-    //         console.log('request to another server');
-    //       }
-    //     } else {
-    //       response.status(422).send({
-    //         isSuccess: false,
-    //         message:
-    //           'billing details or some important payment infos are missing!',
-    //       });
-    //     }
-    //     break;
-    //   default:
-    //     console.log(`Unhandled event type ${event.type}`);
-    // }
+          await new User({
+            email: invoiceUpcoming.customer_details.email,
+            code: itemCode
+          }).save()
+  
+        } catch (error) {
+          console.log(error)
+  
+        }
+  
+        const mailOptions = {
+          from: 'sayem.mia@northsouth.edu',
+          to: 'md1040582@gmail.com',
+          subject: 'Blurrify Access Code.',
+          html: blurrifycode(itemCode)
+        };
+  
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        });
+        break;
+  
+    }
 
     // Return a 200 response to acknowledge receipt of the event
     response.send();
