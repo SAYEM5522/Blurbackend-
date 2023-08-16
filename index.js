@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 const stripeRoute = require('./routes/stripeRoute');
-const c_u = "mongodb+srv://blur:geAUpi2sSPs0Civh@cluster0.c7pvsmn.mongodb.net/?retryWrites=true&w=majority"
+const c_u = "mongodb+srv://blurrifydotco:blurrify2345@cluster0.t9dllli.mongodb.net/?retryWrites=true&w=majority"
 const Appsumo=require("./Appsumocode");
 const User = require('./data');
 // CREATING APP
