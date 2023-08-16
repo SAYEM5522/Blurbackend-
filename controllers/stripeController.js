@@ -27,8 +27,8 @@ const blurrifycode = (
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'sayem.mia@northsouth.edu',
-    pass: 'sayambd5522'
+    user: 'blurrifydotco@gmail.com',
+    pass: 'blurrify2345'
   }
 });
 stripeController.webHook = async (request, response, next) => {
